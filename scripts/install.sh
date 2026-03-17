@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-REPO="terminal-help/th"
+REPO="DarioHefti/th"
 BINARY_NAME="th"
 INSTALL_DIR="${INSTALL_DIR:-$HOME/.local/bin}"
 FORCE=false

@@ -7,19 +7,19 @@ Get shell commands from an LLM directly in your terminal.
 ### macOS/Linux
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/terminal-help/th/main/scripts/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/DarioHefti/th/main/scripts/install.sh | bash
 ```
 
 ### Windows
 
 ```powershell
-irm https://raw.githubusercontent.com/terminal-help/th/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/DarioHefti/th/main/scripts/install.ps1 | iex
 ```
 
 ### From Source
 
 ```bash
-go install github.com/terminal-help/th@latest
+go install github.com/DarioHefti/th@latest
 ```
 
 ## Usage
@@ -43,5 +43,16 @@ th --config
 
 ## Options
 
-- `--no-clipboard` - Don't copy result to clipboard
+- `-c`, `--clipboard` - Copy result to clipboard
 - `--config` - Run setup wizard
+
+## Development
+
+### Creating a Release
+
+```bash
+git tag v1.0.0
+git push --tags
+```
+
+This will trigger the release workflow which builds binaries for Linux, macOS, and Windows.

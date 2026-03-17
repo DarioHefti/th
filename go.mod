@@ -1,4 +1,4 @@
-module github.com/terminal-help/th
+module github.com/DarioHefti/th
 
 go 1.24.0
 

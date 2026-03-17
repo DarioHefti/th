@@ -44,7 +44,7 @@ jobs:
             EXTENSION=".exe"
           fi
           OUTPUT_NAME="th-${GOOS}-${GOARCH}${EXTENSION}"
-          go build -ldflags "-X github.com/terminal-help/th/cmd.Version=${VERSION}" -o "${OUTPUT_NAME}" .
+          go build -ldflags "-X github.com/DarioHefti/th/cmd.Version=${VERSION}" -o "${OUTPUT_NAME}" .
 
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v1

@@ -24,7 +24,7 @@ param(
     [switch]$Force
 )
 
-$Repo = "terminal-help/th"
+$Repo = "DarioHefti/th"
 $BinaryName = "th"
 
 function Get-LatestVersion {

@@ -17,9 +17,9 @@ import (
 )
 
 var (
-	noClipboard bool
-	configFlag  bool
-	Version     = "dev"
+	copyToClipboard bool
+	configFlag      bool
+	Version         = "dev"
 )
 
 var rootCmd = &cobra.Command{
@@ -79,7 +79,7 @@ Examples:
 			return fmt.Errorf("getting command: %w", err)
 		}
 
-		output.PrintCommand(command, !noClipboard)
+		output.PrintCommand(command, copyToClipboard)
 
 		return nil
 	},
@@ -165,7 +165,7 @@ func runSetupWizard() error {
 }
 
 func init() {
-	rootCmd.Flags().BoolVar(&noClipboard, "no-clipboard", false, "Don't copy to clipboard")
+	rootCmd.Flags().BoolVar(&copyToClipboard, "clipboard", false, "Copy result to clipboard")
 	rootCmd.Flags().BoolVar(&configFlag, "config", false, "Run setup wizard")
 	rootCmd.AddCommand(versionCmd)
 }
