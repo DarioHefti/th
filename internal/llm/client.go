@@ -6,17 +6,17 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"strings"
 	"time"
 )
 
 type Client struct {
-	httpClient    *http.Client
-	endpoint      string
-	deployment    string
-	apiVersion    string
-	tokenProvider func(ctx context.Context, scope string) (string, error)
+	httpClient *http.Client
+	endpoint   string
+	model      string
+	apiKey     string
 }
 
 type ChatMessage struct {
@@ -25,6 +25,7 @@ type ChatMessage struct {
 }
 
 type ChatRequest struct {
+	Model       string        `json:"model,omitempty"`
 	Messages    []ChatMessage `json:"messages"`
 	MaxTokens   int           `json:"max_tokens,omitempty"`
 	Temperature float64       `json:"temperature,omitempty"`
@@ -38,27 +39,19 @@ type ChatResponse struct {
 	} `json:"choices"`
 }
 
-func NewClient(endpoint, deployment, apiVersion string, tokenProvider func(ctx context.Context, scope string) (string, error)) (*Client, error) {
+func NewClient(endpoint, model, apiKey string) (*Client, error) {
 	return &Client{
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
 		},
-		endpoint:      endpoint,
-		deployment:    deployment,
-		apiVersion:    apiVersion,
-		tokenProvider: tokenProvider,
+		endpoint: endpoint,
+		model:    model,
+		apiKey:   apiKey,
 	}, nil
 }
 
 func (c *Client) GetCommand(ctx context.Context, systemPrompt, userPrompt string) (string, error) {
-	scope := strings.TrimSuffix(c.endpoint, "/") + "/.default"
-	token, err := c.tokenProvider(ctx, scope)
-	if err != nil {
-		return "", fmt.Errorf("getting token: %w", err)
-	}
-
-	url := fmt.Sprintf("%s/openai/deployments/%s/chat/completions?api-version=%s",
-		c.endpoint, c.deployment, c.apiVersion)
+	url := fmt.Sprintf("%s/chat/completions", strings.TrimSuffix(c.endpoint, "/"))
 
 	messages := []ChatMessage{
 		{Role: "system", Content: systemPrompt},
@@ -66,6 +59,7 @@ func (c *Client) GetCommand(ctx context.Context, systemPrompt, userPrompt string
 	}
 
 	body := ChatRequest{
+		Model:       c.model,
 		Messages:    messages,
 		MaxTokens:   512,
 		Temperature: 0.3,
@@ -81,8 +75,13 @@ func (c *Client) GetCommand(ctx context.Context, systemPrompt, userPrompt string
 		return "", fmt.Errorf("creating request: %w", err)
 	}
 
-	req.Header.Set("Authorization", "Bearer "+token)
+	if c.apiKey != "" {
+		req.Header.Set("Authorization", "Bearer "+c.apiKey)
+	}
 	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("x-opencode-session", generateSessionID())
+	req.Header.Set("x-opencode-request", generateRequestID())
+	req.Header.Set("x-opencode-project", "th")
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
@@ -113,4 +112,22 @@ func (c *Client) GetCommand(ctx context.Context, systemPrompt, userPrompt string
 	command = strings.TrimSpace(command)
 
 	return command, nil
+}
+
+func generateSessionID() string {
+	const chars = "abcdefghijklmnopqrstuvwxyz0123456789"
+	result := make([]byte, 32)
+	for i := range result {
+		result[i] = chars[rand.Intn(len(chars))]
+	}
+	return string(result)
+}
+
+func generateRequestID() string {
+	const chars = "abcdefghijklmnopqrstuvwxyz0123456789"
+	result := make([]byte, 16)
+	for i := range result {
+		result[i] = chars[rand.Intn(len(chars))]
+	}
+	return string(result)
 }

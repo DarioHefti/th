@@ -19,11 +19,9 @@ func TestSaveAndLoad(t *testing.T) {
 	}()
 
 	cfg := &Config{
-		TenantID:   "test-tenant",
-		ClientID:   "test-client",
-		Endpoint:   "https://test.openai.azure.com/",
-		Deployment: "gpt-4o",
-		APIVersion: "2024-02-15-preview",
+		Provider: "zen",
+		Endpoint: "https://opencode.ai/zen/v1",
+		Model:    "minimax-m2.5-free",
 	}
 
 	if err := Save(cfg); err != nil {
@@ -35,20 +33,14 @@ func TestSaveAndLoad(t *testing.T) {
 		t.Fatalf("Load failed: %v", err)
 	}
 
-	if loaded.TenantID != cfg.TenantID {
-		t.Errorf("TenantID: got %q, want %q", loaded.TenantID, cfg.TenantID)
-	}
-	if loaded.ClientID != cfg.ClientID {
-		t.Errorf("ClientID: got %q, want %q", loaded.ClientID, cfg.ClientID)
+	if loaded.Provider != cfg.Provider {
+		t.Errorf("Provider: got %q, want %q", loaded.Provider, cfg.Provider)
 	}
 	if loaded.Endpoint != cfg.Endpoint {
 		t.Errorf("Endpoint: got %q, want %q", loaded.Endpoint, cfg.Endpoint)
 	}
-	if loaded.Deployment != cfg.Deployment {
-		t.Errorf("Deployment: got %q, want %q", loaded.Deployment, cfg.Deployment)
-	}
-	if loaded.APIVersion != cfg.APIVersion {
-		t.Errorf("APIVersion: got %q, want %q", loaded.APIVersion, cfg.APIVersion)
+	if loaded.Model != cfg.Model {
+		t.Errorf("Model: got %q, want %q", loaded.Model, cfg.Model)
 	}
 }
 
