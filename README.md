@@ -7,13 +7,13 @@ Get shell commands from an LLM directly in your terminal.
 ### macOS/Linux
 
 ```bash
-curl -sSL https://raw.githubusercontent.com/DarioHefti/th/main/scripts/install.sh | bash
+curl -sSL https://raw.githubusercontent.com/DarioHefti/th/refs/heads/main/scripts/install.sh | bash
 ```
 
 ### Windows
 
 ```powershell
-irm https://raw.githubusercontent.com/DarioHefti/th/main/scripts/install.ps1 | iex
+irm https://raw.githubusercontent.com/DarioHefti/th/refs/heads/main/scripts/install.ps1 | iex
 ```
 
 ### From Source
@@ -28,8 +28,8 @@ go install github.com/DarioHefti/th@latest
 # Get a command for listing all files modified today
 th "list all files modified today"
 
-# Find large files over 100MB
-th "find large files over 100MB"
+# Find large files over 100MB and copy to clipboard
+th "find large files over 100MB" --c
 
 # Re-run setup wizard
 th --config
@@ -48,6 +48,15 @@ th --config
 
 - `--c` - Copy result to clipboard
 - `--config` - Run setup wizard
+
+## Privacy
+
+When you use th, then the following data will be sent to an llm.
+
+- **Your prompt** - The text query you type (e.g., "list all files modified today")
+- **OS type** - Sent as part of the API request for context-aware responses
+- **File tree (depth 3)** - Top 3 levels of your current directory structure
+- **Git info** - Current git branch and status (if inside a git repository)
 
 ## Development
 
