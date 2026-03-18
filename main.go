@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/terminal-help/th/cmd"
+	"github.com/DarioHefti/th/cmd"
 )
 
 func main() {

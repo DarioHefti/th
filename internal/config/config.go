@@ -11,11 +11,9 @@ import (
 )
 
 type Config struct {
-	TenantID   string `json:"tenant_id"`
-	ClientID   string `json:"client_id"`
-	Endpoint   string `json:"endpoint"`
-	Deployment string `json:"deployment"`
-	APIVersion string `json:"api_version"`
+	Provider string `json:"provider"`
+	Endpoint string `json:"endpoint"`
+	Model    string `json:"model"`
 }
 
 var configDir = filepath.Join(xdg.ConfigHome, "th")

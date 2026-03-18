@@ -37,9 +37,12 @@ th --config
 
 ## Setup
 
-1. Create an app registration in Azure AD
-2. Grant the app access to Azure AI Foundry
-3. Run `th --config` to configure your credentials
+1. Run `th --config` to select a free model
+2. Available models:
+   - `minimax-m2.5-free` (MiniMax M2.5)
+   - `big-pickle` (Stealth model)
+   - `mimo-v2-flash-free` (MiMo V2 Flash)
+   - `nemotron-3-super-free` (Nemotron 3 Super)
 
 ## Options
 

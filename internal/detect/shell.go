@@ -14,6 +14,8 @@ type Environment struct {
 	Shell        string
 	ShellVersion string
 	CWD          string
+	GitBranch    string
+	GitStatus    string
 }
 
 func Detect() (*Environment, error) {
@@ -34,6 +36,8 @@ func Detect() (*Environment, error) {
 	} else {
 		env.ShellVersion = shellVersion
 	}
+
+	env.GitBranch, env.GitStatus = detectGit()
 
 	return env, nil
 }
@@ -133,12 +137,56 @@ func detectShellVersion(shell string) (string, error) {
 	return strings.TrimSpace(string(output)), nil
 }
 
+func detectGit() (branch, status string) {
+	cmd := exec.Command("git", "rev-parse", "--abbrev-ref", "HEAD")
+	output, err := cmd.Output()
+	if err == nil {
+		branch = strings.TrimSpace(string(output))
+	}
+
+	cmd = exec.Command("git", "status", "--porcelain")
+	output, err = cmd.Output()
+	if err == nil {
+		lines := strings.Split(strings.TrimSpace(string(output)), "\n")
+		modified := 0
+		added := 0
+		untracked := 0
+		for _, line := range lines {
+			if len(line) >= 2 {
+				switch line[:2] {
+				case "M ", "MM":
+					modified++
+				case "A ", "AM":
+					added++
+				case "??":
+					untracked++
+				}
+			}
+		}
+		if modified > 0 || added > 0 || untracked > 0 {
+			status = fmt.Sprintf("%d modified, %d added, %d untracked", modified, added, untracked)
+		}
+	}
+
+	return branch, status
+}
+
 func (e *Environment) SystemPrompt() string {
 	fileTree := getFileTree(e.CWD, 3)
+
+	gitInfo := ""
+	if e.GitBranch != "" {
+		gitInfo = fmt.Sprintf("- Git branch: %s", e.GitBranch)
+		if e.GitStatus != "" {
+			gitInfo += fmt.Sprintf("\n- Git status: %s", e.GitStatus)
+		}
+	}
+
 	prompt := fmt.Sprintf(`You are a command-line expert. The user is on:
 - OS: %s
 - Shell: %s
 - Working directory: %s
+%s
 - File tree:
 %s
 
@@ -146,7 +194,7 @@ Given a natural language request, respond with ONLY the shell command appropriat
 - Do NOT include any explanation, comments, or markdown.
 - Do NOT use code fences or backticks.
 - The response should be ONLY the raw command.
-- If platform-specific, prefer %s commands.`, e.OS, e.Shell, e.CWD, fileTree, e.Shell)
+- If platform-specific, prefer %s commands.`, e.OS, e.Shell, e.CWD, gitInfo, fileTree, e.Shell)
 
 	return prompt
 }

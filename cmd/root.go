@@ -4,16 +4,14 @@ import (
 	"bufio"
 	"context"
 	"fmt"
-	"net/url"
 	"os"
 	"strings"
 
+	"github.com/DarioHefti/th/internal/config"
+	"github.com/DarioHefti/th/internal/detect"
+	"github.com/DarioHefti/th/internal/llm"
+	"github.com/DarioHefti/th/internal/output"
 	"github.com/spf13/cobra"
-	"github.com/terminal-help/th/internal/auth"
-	"github.com/terminal-help/th/internal/config"
-	"github.com/terminal-help/th/internal/detect"
-	"github.com/terminal-help/th/internal/llm"
-	"github.com/terminal-help/th/internal/output"
 )
 
 var (
@@ -25,7 +23,7 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "th [query]",
 	Short: "Get shell commands from an LLM",
-	Long: `th (Terminal Help) - Get shell commands from Azure AI Foundry
+	Long: `th (Terminal Help) - Get shell commands using OpenCode Zen free models
 
 Examples:
   th "list all files modified today"
@@ -55,14 +53,7 @@ Examples:
 			}
 		}
 
-		azureAuth, err := auth.NewAzureAuth(cfg.TenantID, cfg.ClientID)
-		if err != nil {
-			return fmt.Errorf("creating auth: %w", err)
-		}
-
-		output.PrintAuthPrompt()
-
-		llmClient, err := llm.NewClient(cfg.Endpoint, cfg.Deployment, cfg.APIVersion, azureAuth.GetToken)
+		llmClient, err := llm.NewClient(cfg.Endpoint, cfg.Model, "")
 		if err != nil {
 			return fmt.Errorf("creating LLM client: %w", err)
 		}
@@ -105,54 +96,25 @@ func runSetupWizard() error {
 
 	reader := bufio.NewReader(os.Stdin)
 
-	fmt.Print("Azure Tenant ID (press Enter for common tenants): ")
-	tenantID, _ := reader.ReadString('\n')
-	tenantID = strings.TrimSpace(tenantID)
-	if tenantID == "" {
-		tenantID = "common"
-	}
+	fmt.Println("OpenCode Zen - Free Models")
+	fmt.Println("Available models:")
+	fmt.Println("  - minimax-m2.5-free (MiniMax M2.5)")
+	fmt.Println("  - big-pickle (Stealth model)")
+	fmt.Println("  - mimo-v2-flash-free (MiMo V2 Flash)")
+	fmt.Println("  - nemotron-3-super-free (Nemotron 3 Super)")
+	fmt.Println()
 
-	fmt.Print("Azure Client ID (app registration): ")
-	clientID, _ := reader.ReadString('\n')
-	clientID = strings.TrimSpace(clientID)
-	if clientID == "" {
-		return fmt.Errorf("client ID is required")
-	}
-
-	fmt.Print("Azure AI Foundry Endpoint (e.g., https://my-resource.openai.azure.com/): ")
-	endpoint, _ := reader.ReadString('\n')
-	endpoint = strings.TrimSpace(endpoint)
-	if endpoint == "" {
-		return fmt.Errorf("endpoint is required")
-	}
-	parsedURL, err := url.Parse(endpoint)
-	if err != nil || parsedURL.Scheme == "" || parsedURL.Host == "" {
-		return fmt.Errorf("invalid endpoint URL: must be a valid URL (e.g., https://my-resource.openai.azure.com/)")
-	}
-	if parsedURL.Scheme != "https" {
-		return fmt.Errorf("endpoint must use HTTPS")
-	}
-
-	fmt.Print("Deployment/Model name (e.g., gpt-4o): ")
-	deployment, _ := reader.ReadString('\n')
-	deployment = strings.TrimSpace(deployment)
-	if deployment == "" {
-		return fmt.Errorf("deployment name is required")
-	}
-
-	fmt.Print("API Version (press Enter for 2024-02-15-preview): ")
-	apiVersion, _ := reader.ReadString('\n')
-	apiVersion = strings.TrimSpace(apiVersion)
-	if apiVersion == "" {
-		apiVersion = "2024-02-15-preview"
+	fmt.Print("Model name (press Enter for mimo-v2-flash-free): ")
+	model, _ := reader.ReadString('\n')
+	model = strings.TrimSpace(model)
+	if model == "" {
+		model = "mimo-v2-flash-free"
 	}
 
 	cfg := &config.Config{
-		TenantID:   tenantID,
-		ClientID:   clientID,
-		Endpoint:   endpoint,
-		Deployment: deployment,
-		APIVersion: apiVersion,
+		Provider: "zen",
+		Endpoint: "https://opencode.ai/zen/v1",
+		Model:    model,
 	}
 
 	if err := config.Save(cfg); err != nil {
@@ -165,7 +127,7 @@ func runSetupWizard() error {
 }
 
 func init() {
-	rootCmd.Flags().BoolVar(&copyToClipboard, "clipboard", false, "Copy result to clipboard")
+	rootCmd.Flags().BoolVarP(&copyToClipboard, "clipboard", "c", false, "Copy result to clipboard")
 	rootCmd.Flags().BoolVar(&configFlag, "config", false, "Run setup wizard")
 	rootCmd.AddCommand(versionCmd)
 }
