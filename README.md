@@ -46,7 +46,7 @@ th --config
 
 ## Options
 
-- `-c`, `--clipboard` - Copy result to clipboard
+- `--c` - Copy result to clipboard
 - `--config` - Run setup wizard
 
 ## Development

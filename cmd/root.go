@@ -127,7 +127,7 @@ func runSetupWizard() error {
 }
 
 func init() {
-	rootCmd.Flags().BoolVarP(&copyToClipboard, "clipboard", "c", false, "Copy result to clipboard")
+	rootCmd.Flags().BoolVar(&copyToClipboard, "c", false, "Copy result to clipboard")
 	rootCmd.Flags().BoolVar(&configFlag, "config", false, "Run setup wizard")
 	rootCmd.AddCommand(versionCmd)
 }
