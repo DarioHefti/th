@@ -30,8 +30,12 @@ Examples:
   th "find large files over 100MB"
   th --config  # Re-run setup wizard
 `,
-	Args: cobra.MaximumNArgs(1),
+	Args: validateRootArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
+		if configFlag {
+			return runSetupWizard()
+		}
+
 		if len(args) == 0 {
 			return cmd.Usage()
 		}
@@ -40,7 +44,7 @@ Examples:
 
 		cfg, err := config.Load()
 		if err != nil {
-			if config.IsConfigNotFound(err) || configFlag {
+			if config.IsConfigNotFound(err) {
 				if err := runSetupWizard(); err != nil {
 					return err
 				}
@@ -98,17 +102,16 @@ func runSetupWizard() error {
 
 	fmt.Println("OpenCode Zen - Free Models")
 	fmt.Println("Available models:")
-	fmt.Println("  - minimax-m2.5-free (MiniMax M2.5)")
+	fmt.Println("  - minimax-m2.5 (MiniMax M2.5)")
 	fmt.Println("  - big-pickle (Stealth model)")
-	fmt.Println("  - mimo-v2-flash-free (MiMo V2 Flash)")
 	fmt.Println("  - nemotron-3-super-free (Nemotron 3 Super)")
 	fmt.Println()
 
-	fmt.Print("Model name (press Enter for mimo-v2-flash-free): ")
+	fmt.Print("Model name (press Enter for minimax-m2.5): ")
 	model, _ := reader.ReadString('\n')
 	model = strings.TrimSpace(model)
 	if model == "" {
-		model = "mimo-v2-flash-free"
+		model = "big-pickle"
 	}
 
 	cfg := &config.Config{
@@ -124,6 +127,22 @@ func runSetupWizard() error {
 	output.PrintSuccess(fmt.Sprintf("Configuration saved to %s", config.ConfigPath()))
 
 	return nil
+}
+
+func validateRootArgs(cmd *cobra.Command, args []string) error {
+	cfgMode, err := cmd.Flags().GetBool("config")
+	if err != nil {
+		return err
+	}
+
+	if cfgMode {
+		if len(args) > 0 {
+			return fmt.Errorf("--config does not accept a query argument")
+		}
+		return nil
+	}
+
+	return cobra.MaximumNArgs(1)(cmd, args)
 }
 
 func init() {

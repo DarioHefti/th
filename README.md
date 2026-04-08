@@ -39,9 +39,8 @@ th --config
 
 1. Run `th --config` to select a free model
 2. Available models:
-   - `minimax-m2.5-free` (MiniMax M2.5)
+   - `minimax-m2.5` (MiniMax M2.5, default)
    - `big-pickle` (Stealth model)
-   - `mimo-v2-flash-free` (MiMo V2 Flash)
    - `nemotron-3-super-free` (Nemotron 3 Super)
 
 ## Options

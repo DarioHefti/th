@@ -240,7 +240,7 @@ function Main {
     Add-ToPath -Path $InstallDir
     
     Write-Host ""
-    Write-Host "Run 'th --config' to set up your Azure credentials" -ForegroundColor Cyan
+    Write-Host "Run 'th --config' anytime to change your default model" -ForegroundColor Cyan
 }
 
 Main
